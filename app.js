@@ -1,5 +1,7 @@
-const express = require('express'),
-  bodyParser = require('body-parser');
+require('dotenv').config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const sequelize = require('./utils/database');
 
 const app = express();
 
@@ -18,4 +20,12 @@ app.use((err, req, res, next) => {
   res.send({ error: err.message });
 });
 
-app.listen(5000);
+sequelize
+  .sync({ force: true })
+  .then(() => {
+    
+    app.listen(5000);
+  })
+  .catch(err => {
+    console.log(err);
+  });
