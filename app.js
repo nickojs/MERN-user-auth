@@ -1,9 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const sequelize = require('./utils/database');
 
 const authRoutes = require('./routes/auth');
+const sequelize = require('./utils/database');
 
 const app = express();
 
@@ -24,12 +24,12 @@ app.use((err, req, res, next) => {
   res.send({ error: err.message });
 });
 
+//sequelize startup
 sequelize
-  .sync({ force: true })
-  .then(() => {
-    
-    app.listen(5000);
-  })
-  .catch(err => {
-    console.log(err);
-  });
+  .sync()
+    .then(() => {
+      app.listen(5000);
+    })
+    .catch(err => {
+      console.log(err); 
+    });
