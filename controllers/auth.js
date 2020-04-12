@@ -71,7 +71,7 @@ exports.setToken = async (req, res, next) => {
       });
     }
     // sets the expiration date to 1 hour from now
-    user.resetTokenExpiration = Date.now() + 3600;
+    user.resetTokenExpiration = Date.now() + 3600000;
     user.resetToken = parsedToken;
     user.save()
     
