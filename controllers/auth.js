@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
-const randomBytes = require('../utils/resetToken');
+const randomBytes = require('../utils/reset-token');
 
 exports.signup = async (req, res, next) => {
   const { username, email, password } = req.body
