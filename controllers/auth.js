@@ -15,9 +15,8 @@ exports.signup = async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);    
     const user = new User({ username, email, password: hashedPassword });
-    user.save()
-      .then(user => res.status(201).send({ user }))
-      .catch(err => console.log(err));  
+    user.save();
+    res.status(201).send({ user });
 
   } catch (error) {
     console.log(error);
@@ -30,7 +29,7 @@ exports.login = async (req, res, next) => {
   try {
     const user = await User.findOne({ where: { email }});
     const hashedPassword = await bcrypt.compare(password, user.password);
-    
+
     if (!user) {
       return res.status(404).send({ 
         error: true,
