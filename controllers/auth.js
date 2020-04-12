@@ -3,7 +3,7 @@ const User = require('../models/user');
 
 exports.signup = async (req, res, next) => {
   const { username, email, password } = req.body
-
+  
   try {
     const fetchedUser = await User.findOne({ where: { email }});
     if (fetchedUser) {
@@ -12,8 +12,9 @@ exports.signup = async (req, res, next) => {
         message: 'user already registered' 
       });
     }
-    
-    const user = new User({ username, email, password })
+
+    const hashedPassword = await bcrypt.hash(password, 10);    
+    const user = new User({ username, email, password: hashedPassword });
     user.save()
       .then(user => res.status(201).send({ user }))
       .catch(err => console.log(err));  
@@ -25,23 +26,30 @@ exports.signup = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
-
-  const user = await User.findOne({ where: { email }});
-  if (!user) {
-    return res.status(404).send({ 
-      error: true,
-      message: 'user not found in the database' 
+  
+  try {
+    const user = await User.findOne({ where: { email }});
+    const hashedPassword = await bcrypt.compare(password, user.password);
+    
+    if (!user) {
+      return res.status(404).send({ 
+        error: true,
+        message: 'user not found in the database' 
+      });
+    }
+    
+    if(!hashedPassword) {
+      return res.status(401).send({ 
+        error: true,
+        message: 'incorrect password for the user ' + user.username
+      });
+    }
+  
+    return res.status(200).send({ 
+      message: 'user ' + user.username + ' logged in'
     });
-  }
 
-  if(user.password !== password) {
-    return res.status(401).send({ 
-      error: true,
-      message: 'incorrect password for the user ' + user.username
-    });
+  } catch (error) {
+    console.log(error);
   }
-
-  return res.status(200).send({ 
-    message: 'user ' + user.username + ' logged in'
-  });
 }
