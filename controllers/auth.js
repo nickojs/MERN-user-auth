@@ -1,5 +1,8 @@
-const bcrypt = require('bcrypt');
 const User = require('../models/user');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const util = require('util');
+const randomBytes = util.promisify(crypto.randomBytes);
 
 exports.signup = async (req, res, next) => {
   const { username, email, password } = req.body
