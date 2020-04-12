@@ -7,7 +7,7 @@ router.post('/signup', async (req, res, next) => {
 
   try {
     const fetchedUser = await User.findOne({ where: { email }});
-    if (fetchedUser !== null) {
+    if (fetchedUser) {
       return res.status(302).send({ 
         error: true,
         message: 'user already registered' 
