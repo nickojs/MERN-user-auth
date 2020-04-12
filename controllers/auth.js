@@ -81,3 +81,33 @@ exports.setToken = async (req, res, next) => {
     console.log(error);
   }
 }
+
+exports.resetPassword = async (req, res, next) => {
+  const token = req.params.tokenId; 
+  const newPassword = req.body.password;
+  
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const user = await User.findOne({ where: { 
+      resetToken: token, 
+      resetTokenExpiration: {
+        [Op.gt]: new Date()
+      }}});
+      
+    if(!user) {
+      return res.status(401).send({ 
+        error: true,
+        message: 'something went wrong' 
+      });
+    }
+
+    user.password = hashedPassword;
+    user.resetToken = null;
+    user.resetTokenExpiration = null;
+    user.save();
+
+    res.send({message: 'successfuly changed user password'});
+  } catch (error) {
+    console.log(error);
+  }
+}
