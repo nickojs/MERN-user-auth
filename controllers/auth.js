@@ -1,9 +1,7 @@
 const User = require('../models/user');
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
-const util = require('util');
-const randomBytes = util.promisify(crypto.randomBytes);
+const randomBytes = require('../utils/resetToken');
 
 exports.signup = async (req, res, next) => {
   const { username, email, password } = req.body
@@ -61,9 +59,7 @@ exports.setToken = async (req, res, next) => {
   const userEmail = req.body.email;
 
   try {
-    const rawToken = await randomBytes(32);
-    const parsedToken = rawToken.toString('hex');
-
+    const resetToken = await randomBytes();
     const user = await User.findOne({ where: { email: userEmail }});
     if(!user){
       return res.status(404).send({ 
@@ -73,10 +69,10 @@ exports.setToken = async (req, res, next) => {
     }
     // sets the expiration date to 1 hour from now
     user.resetTokenExpiration = Date.now() + 3600000;
-    user.resetToken = parsedToken;
+    user.resetToken = resetToken;
     user.save()
     
-    res.status(201).send({ token: parsedToken });
+    res.status(201).send({ token: resetToken });
   } catch (error) {
     console.log(error);
   }
